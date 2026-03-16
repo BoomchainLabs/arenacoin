@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArenaCoin — Enter the Battle Arena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --gold: #f5c518;
+      --gold2: #ffdd57;
+      --red: #e63946;
+      --dark: #0a0a0f;
+      --darker: #060609;
+      --card: #10101a;
+      --border: rgba(245,197,24,0.18);
+      --text: #e8e8f0;
+      --muted: #7a7a9a;
+    }
+
+```
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--darker);
+  color: var(--text);
+  font-family: 'Exo 2', sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ── NOISE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2.5rem;
+  background: rgba(6,6,9,0.85);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 1.15rem;
+  color: var(--gold);
+  letter-spacing: 0.08em;
+  text-decoration: none;
+}
+
+.nav-logo span { color: var(--red); }
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--gold); }
+
+.nav-cta {
+  background: var(--gold);
+  color: var(--darker) !important;
+  font-weight: 700 !important;
+  padding: 0.45rem 1.2rem;
+  border-radius: 3px;
+}
+
+/* ── HERO ── */
+#hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  padding: 6rem 2rem 4rem;
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(245,197,24,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245,197,24,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 40%, transparent 100%);
+}
+
+.hero-glow {
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245,197,24,0.12) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.hero-glow-red {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(230,57,70,0.1) 0%, transparent 70%);
+  top: 30%;
+  right: 10%;
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 860px;
+}
+
+.hero-badge {
+  display: inline-block;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  border: 1px solid var(--border);
+  padding: 0.35rem 1rem;
+  border-radius: 2px;
+  margin-bottom: 1.8rem;
+  text-transform: uppercase;
+  animation: fadeUp 0.6s ease both;
+}
+
+.hero-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: clamp(2.8rem, 8vw, 6.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.7s 0.1s ease both;
+}
+
+.hero-title .line1 { color: var(--text); }
+.hero-title .line2 {
+  color: var(--gold);
+  display: block;
+  -webkit-text-stroke: 1px var(--gold);
+}
+
+.hero-sub {
+  font-size: 1.05rem;
+  color: var(--muted);
+  max-width: 540px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.7;
+  font-weight: 300;
+  animation: fadeUp 0.7s 0.2s ease both;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: fadeUp 0.7s 0.3s ease both;
+}
+
+.btn-primary {
+  background: var(--gold);
+  color: var(--darker);
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  padding: 0.85rem 2.2rem;
+  border-radius: 3px;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 0 24px rgba(245,197,24,0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 40px rgba(245,197,24,0.5);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text);
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  padding: 0.85rem 2.2rem;
+  border-radius: 3px;
+  text-decoration: none;
+  text-transform: uppercase;
+  border: 1px solid var(--border);
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.btn-secondary:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.hero-contract {
+  margin-top: 2.5rem;
+  animation: fadeUp 0.7s 0.4s ease both;
+}
+
+.contract-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+
+.contract-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(245,197,24,0.05);
+  border: 1px solid var(--border);
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.72rem;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.contract-box:hover { background: rgba(245,197,24,0.1); }
+.contract-box .copy-icon { font-size: 0.9rem; opacity: 0.6; }
+
+/* ── STATS ── */
+#stats {
+  position: relative;
+  z-index: 1;
+  padding: 3rem 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.stat-card {
+  background: var(--card);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  position: relative;
+}
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: var(--border);
+}
+
+.stat-value {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 2rem;
+  color: var(--gold);
+  margin-bottom: 0.3rem;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ── SECTION SHARED ── */
+section {
+  position: relative;
+  z-index: 1;
+  padding: 5rem 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.section-tag {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.section-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  line-height: 1.1;
+  margin-bottom: 1rem;
+}
+
+.section-desc {
+  color: var(--muted);
+  font-size: 1rem;
+  max-width: 600px;
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+/* ── FEATURES ── */
+#features .features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+
+.feature-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.25s, transform 0.25s;
+}
+
+.feature-card:hover {
+  border-color: rgba(245,197,24,0.5);
+  transform: translateY(-4px);
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.feature-card:hover::before { opacity: 1; }
+
+.feature-icon {
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+}
+
+.feature-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.6rem;
+  color: var(--text);
+}
+
+.feature-desc {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+/* ── TOKENOMICS ── */
+#tokenomics .toko-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  margin-top: 3rem;
+  align-items: center;
+}
+
+@media (max-width: 700px) {
+  #tokenomics .toko-wrap { grid-template-columns: 1fr; }
+}
+
+.toko-chart {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  margin: 0 auto;
+}
+
+.toko-chart svg { transform: rotate(-90deg); }
+
+.toko-chart-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.toko-chart-label .big { font-size: 1.8rem; font-weight: 900; color: var(--gold); }
+.toko-chart-label .small { font-size: 0.65rem; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; }
+
+.toko-list { list-style: none; }
+
+.toko-list li {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.toko-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.toko-name {
+  flex: 1;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.toko-pct {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--gold);
+}
+
+/* ── ROADMAP ── */
+#roadmap .road-wrap {
+  margin-top: 3rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0;
+  position: relative;
+}
+
+#roadmap .road-wrap::before {
+  content: '';
+  position: absolute;
+  top: 28px;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--border), var(--gold), var(--border), transparent);
+}
+
+.road-phase {
+  padding: 3.5rem 1.5rem 1.5rem;
+  position: relative;
+}
+
+.road-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 3px solid var(--darker);
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 0 12px rgba(245,197,24,0.6);
+}
+
+.road-dot.dim { background: var(--muted); box-shadow: none; }
+
+.road-phase-num {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.road-phase-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+}
+
+.road-phase ul {
+  list-style: none;
+  padding: 0;
+}
+
+.road-phase ul li {
+  font-size: 0.85rem;
+  color: var(--muted);
+  padding: 0.25rem 0;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.road-phase ul li::before {
+  content: '›';
+  color: var(--gold);
+}
+
+/* ── HOW TO BUY ── */
+#buy .steps {
+  margin-top: 3rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.step {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2rem 1.5rem;
+}
+
+.step-num {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 2.5rem;
+  color: rgba(245,197,24,0.15);
+  line-height: 1;
+  margin-bottom: 0.75rem;
+}
+
+.step-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.step-desc {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ── FOOTER ── */
+footer {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--border);
+  padding: 2.5rem 2rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+footer .footer-logo {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 1.1rem;
+  color: var(--gold);
+  margin-bottom: 0.75rem;
+}
+
+footer .footer-links {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+footer .footer-links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+}
+
+footer .footer-links a:hover { color: var(--gold); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── SEPARATOR ── */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0;
+}
+
+/* ── COPY TOAST ── */
+#toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(60px);
+  background: var(--gold);
+  color: var(--darker);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.6rem 1.5rem;
+  border-radius: 3px;
+  z-index: 200;
+  letter-spacing: 0.1em;
+  transition: transform 0.3s ease;
+}
+
+#toast.show { transform: translateX(-50%) translateY(0); }
+```
+
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+
+  <nav>
+    <a href="#hero" class="nav-logo">ARENA<span>COIN</span></a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#tokenomics">Tokenomics</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+      <li><a href="#buy" class="nav-cta">Buy Now</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+
+  <section id="hero" style="max-width:100%; padding-top:0; padding-bottom:0;">
+    <div class="hero-grid"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-glow-red"></div>
+    <div class="hero-content">
+      <div class="hero-badge">⚔️ &nbsp; NFT Battle Arena &nbsp; · &nbsp; On-Chain Gaming</div>
+      <h1 class="hero-title">
+        <span class="line1">ENTER THE</span>
+        <span class="line2">ARENA</span>
+      </h1>
+      <p class="hero-sub">
+        ArenaCoin powers a decentralized gaming universe where NFT warriors clash, champions earn, and every battle is recorded on-chain forever.
+      </p>
+      <div class="hero-buttons">
+        <a href="#buy" class="btn-primary">⚔ Buy $ARENA</a>
+        <a href="https://github.com/BoomchainLabs" target="_blank" class="btn-secondary">GitHub →</a>
+      </div>
+      <div class="hero-contract">
+        <div class="contract-label">Contract Address</div>
+        <div class="contract-box" onclick="copyContract()">
+          <span id="contract-addr">0x3b855F88CB93aA642EaEB13F59987C552Fc614b5</span>
+          <span class="copy-icon">⎘</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+
+  <div id="stats">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">1B</div>
+        <div class="stat-label">Total Supply</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">0%</div>
+        <div class="stat-label">Buy Tax</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">0%</div>
+        <div class="stat-label">Sell Tax</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">🔥</div>
+        <div class="stat-label">LP Burned</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- FEATURES -->
+
+  <section id="features">
+    <div class="section-tag">// Core Mechanics</div>
+    <h2 class="section-title">Battle. Earn. Dominate.</h2>
+    <p class="section-desc">A full ecosystem built around competitive NFT combat, token utility, and community governance.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">⚔️</div>
+        <div class="feature-title">NFT Battle Arena</div>
+        <div class="feature-desc">Deploy your NFT warriors into on-chain PvP battles. Every match outcome is provably fair and permanently recorded on the blockchain.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏆</div>
+        <div class="feature-title">Champion Rewards</div>
+        <div class="feature-desc">Top ranked fighters earn $ARENA token rewards each season. The arena rewards skill, strategy, and dedication.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <div class="feature-title">Gear & Upgrades</div>
+        <div class="feature-desc">Spend $ARENA to forge weapons, craft armor, and level up your NFT. Rare gear gives competitive edges in high-stakes matches.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🗳️</div>
+        <div class="feature-title">DAO Governance</div>
+        <div class="feature-desc">Token holders vote on arena rule sets, seasonal prize pools, new NFT collections, and ecosystem upgrades.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💰</div>
+        <div class="feature-title">Staking Vaults</div>
+        <div class="feature-desc">Stake $ARENA to earn passive yield while your warriors rest between battles. Higher stakes unlock exclusive tournament access.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <div class="feature-title">Multi-Chain</div>
+        <div class="feature-desc">Built on Base with cross-chain bridges in development. Compete against players across the entire EVM ecosystem.</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- TOKENOMICS -->
+
+  <section id="tokenomics">
+    <div class="section-tag">// Token Distribution</div>
+    <h2 class="section-title">Tokenomics</h2>
+    <p class="section-desc">Designed for long-term sustainability with community-first allocation.</p>
+
+```
+<div class="toko-wrap">
+  <div class="toko-chart">
+    <svg width="260" height="260" viewBox="0 0 260 260">
+      <!-- Total circle bg -->
+      <circle cx="130" cy="130" r="110" fill="none" stroke="#10101a" stroke-width="28"/>
+      <!-- Community 40% -->
+      <circle cx="130" cy="130" r="110" fill="none" stroke="#f5c518" stroke-width="28"
+        stroke-dasharray="276.46 415.48" stroke-dashoffset="0"/>
+      <!-- Liquidity 30% -->
+      <circle cx="130" cy="130" r="110" fill="none" stroke="#e63946" stroke-width="28"
+        stroke-dasharray="207.35 484.60" stroke-dashoffset="-276.46"/>
+      <!-- Team 15% -->
+      <circle cx="130" cy="130" r="110" fill="none" stroke="#4a90d9" stroke-width="28"
+        stroke-dasharray="103.67 588.27" stroke-dashoffset="-483.81"/>
+      <!-- Reserve 15% -->
+      <circle cx="130" cy="130" r="110" fill="none" stroke="#44d680" stroke-width="28"
+        stroke-dasharray="103.67 588.27" stroke-dashoffset="-587.48"/>
+    </svg>
+    <div class="toko-chart-label">
+      <span class="big">1B</span>
+      <span class="small">Total Supply</span>
+    </div>
+  </div>
+
+  <ul class="toko-list">
+    <li>
+      <span class="toko-dot" style="background:#f5c518;"></span>
+      <span class="toko-name">Community & Rewards</span>
+      <span class="toko-pct">40%</span>
+    </li>
+    <li>
+      <span class="toko-dot" style="background:#e63946;"></span>
+      <span class="toko-name">Liquidity Pool (Burned)</span>
+      <span class="toko-pct">30%</span>
+    </li>
+    <li>
+      <span class="toko-dot" style="background:#4a90d9;"></span>
+      <span class="toko-name">Team & Development</span>
+      <span class="toko-pct">15%</span>
+    </li>
+    <li>
+      <span class="toko-dot" style="background:#44d680;"></span>
+      <span class="toko-name">Treasury & Reserve</span>
+      <span class="toko-pct">15%</span>
+    </li>
+  </ul>
+</div>
+```
+
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ROADMAP -->
+
+  <section id="roadmap">
+    <div class="section-tag">// The Path Forward</div>
+    <h2 class="section-title">Roadmap</h2>
+    <p class="section-desc">From launch to full on-chain battle metaverse.</p>
+    <div class="road-wrap">
+      <div class="road-phase">
+        <div class="road-dot"></div>
+        <div class="road-phase-num">Phase 01</div>
+        <div class="road-phase-title">Genesis</div>
+        <ul>
+          <li>Token Launch</li>
+          <li>Website & Socials</li>
+          <li>DEX Listing</li>
+          <li>Community Building</li>
+        </ul>
+      </div>
+      <div class="road-phase">
+        <div class="road-dot"></div>
+        <div class="road-phase-num">Phase 02</div>
+        <div class="road-phase-title">Arena Opens</div>
+        <ul>
+          <li>NFT Warrior Mint</li>
+          <li>Battle Arena Beta</li>
+          <li>Staking Vault Launch</li>
+          <li>CEX Listings</li>
+        </ul>
+      </div>
+      <div class="road-phase">
+        <div class="road-dot dim"></div>
+        <div class="road-phase-num">Phase 03</div>
+        <div class="road-phase-title">Season 1</div>
+        <ul>
+          <li>Ranked Tournaments</li>
+          <li>Gear Crafting System</li>
+          <li>DAO Governance</li>
+          <li>Season Prize Pool</li>
+        </ul>
+      </div>
+      <div class="road-phase">
+        <div class="road-dot dim"></div>
+        <div class="road-phase-num">Phase 04</div>
+        <div class="road-phase-title">Expansion</div>
+        <ul>
+          <li>Cross-Chain Bridge</li>
+          <li>Mobile App</li>
+          <li>Guild System</li>
+          <li>Metaverse Integration</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- HOW TO BUY -->
+
+  <section id="buy">
+    <div class="section-tag">// Get $ARENA</div>
+    <h2 class="section-title">How to Buy</h2>
+    <p class="section-desc">Be in the arena in under 3 minutes.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">Get a Wallet</div>
+        <div class="step-desc">Download MetaMask, Coinbase Wallet, or Rabby. Add the Base network to connect to the arena.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">Fund with ETH</div>
+        <div class="step-desc">Buy ETH on any exchange and bridge it to Base via bridge.base.org or directly through your wallet.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">Swap on Uniswap</div>
+        <div class="step-desc">Go to app.uniswap.org, paste the $ARENA contract address, and swap your ETH for $ARENA tokens.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-title">Enter the Arena</div>
+        <div class="step-desc">Hold $ARENA, stake for rewards, mint your warrior NFT, and dominate the leaderboard.</div>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:3rem;">
+      <a href="https://app.uniswap.org/swap?outputCurrency=0x3b855F88CB93aA642EaEB13F59987C552Fc614b5&chain=base"
+        target="_blank" class="btn-primary" style="font-size:0.85rem;">
+        ⚔ Swap on Uniswap
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+
+  <footer>
+    <div class="footer-logo">ARENA<span style="color:var(--red);">COIN</span></div>
+    <div class="footer-links">
+      <a href="https://github.com/BoomchainLabs" target="_blank">GitHub</a>
+      <a href="https://x.com/arenacoin" target="_blank">Twitter / X</a>
+      <a href="https://app.uniswap.org/swap?outputCurrency=0x3b855F88CB93aA642EaEB13F59987C552Fc614b5&chain=base" target="_blank">Buy $ARENA</a>
+      <a href="https://basescan.org/address/0x3b855F88CB93aA642EaEB13F59987C552Fc614b5" target="_blank">Basescan</a>
+    </div>
+    <p style="margin-top:0.5rem; font-size:0.72rem;">
+      Contract: 0x3b855F88CB93aA642EaEB13F59987C552Fc614b5 &nbsp;·&nbsp; Built on Base &nbsp;·&nbsp; © 2025 BoomchainLabs
+    </p>
+    <p style="margin-top:0.5rem; font-size:0.68rem; color:#444;">
+      $ARENA is a utility token. Not financial advice. DYOR.
+    </p>
+  </footer>
+
+  <!-- TOAST -->
+
+  <div id="toast">✓ Address Copied!</div>
+
+  <script>
+    function copyContract() {
+      const addr = '0x3b855F88CB93aA642EaEB13F59987C552Fc614b5';
+      navigator.clipboard.writeText(addr).catch(() => {});
+      const t = document.getElementById('toast');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.feature-card, .step, .road-phase, .stat-card').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      observer.observe(el);
+    });
+  </script>
+
+</body>
+</html>
