@@ -2,965 +2,1073 @@
 
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ArenaCoin — Enter the Battle Arena</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Base Battle Arena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet"/>
   <style>
     :root {
       --gold: #f5c518;
-      --gold2: #ffdd57;
       --red: #e63946;
-      --dark: #0a0a0f;
-      --darker: #060609;
-      --card: #10101a;
-      --border: rgba(245,197,24,0.18);
+      --blue: #00b4d8;
+      --green: #57cc99;
+      --dark: #080810;
+      --card: #0e0e1a;
+      --card2: #13131f;
+      --border: rgba(245,197,24,0.15);
+      --border2: rgba(245,197,24,0.08);
       --text: #e8e8f0;
-      --muted: #7a7a9a;
+      --muted: #6a6a8a;
+      --font-head: 'Orbitron', sans-serif;
+      --font-body: 'Rajdhani', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--dark);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 20% 20%, rgba(245,197,24,0.04) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 80% 80%, rgba(0,180,216,0.04) 0%, transparent 60%);
+      pointer-events: none; z-index: 0;
     }
 
 ```
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html { scroll-behavior: smooth; }
-
-body {
-  background: var(--darker);
-  color: var(--text);
-  font-family: 'Exo 2', sans-serif;
-  overflow-x: hidden;
-  min-height: 100vh;
-}
-
-/* ── NOISE OVERLAY ── */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-  background-size: 200px 200px;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.35;
-}
-
-/* ── NAV ── */
-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 2.5rem;
-  background: rgba(6,6,9,0.85);
-  backdrop-filter: blur(14px);
+/* ── TOPBAR ── */
+#topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  background: rgba(8,8,16,0.92);
+  backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
 }
-
-.nav-logo {
-  font-family: 'Orbitron', sans-serif;
-  font-weight: 900;
-  font-size: 1.15rem;
-  color: var(--gold);
-  letter-spacing: 0.08em;
-  text-decoration: none;
+.logo {
+  font-family: var(--font-head); font-weight: 900; font-size: 1rem;
+  color: var(--gold); letter-spacing: 0.08em; text-decoration: none;
+}
+.logo span { color: var(--red); }
+#wallet-btn {
+  font-family: var(--font-head); font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 0.5rem 1.2rem; border-radius: 3px; cursor: pointer;
+  border: 1px solid var(--gold); background: transparent; color: var(--gold);
+  transition: background 0.2s, color 0.2s;
+}
+#wallet-btn:hover, #wallet-btn.connected { background: var(--gold); color: var(--dark); }
+#wallet-addr {
+  font-size: 0.72rem; color: var(--muted); margin-left: 0.75rem;
+  font-family: var(--font-head);
+}
+#arena-balance {
+  font-family: var(--font-head); font-size: 0.72rem; color: var(--gold);
+  margin-left: 0.75rem;
 }
 
-.nav-logo span { color: var(--red); }
+/* ── TABS ── */
+#tabs {
+  position: fixed; top: 52px; left: 0; right: 0; z-index: 99;
+  display: flex; gap: 0;
+  background: rgba(8,8,16,0.95);
+  border-bottom: 1px solid var(--border);
+}
+.tab {
+  flex: 1; padding: 0.65rem 0.5rem; text-align: center;
+  font-family: var(--font-head); font-size: 0.62rem; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+.tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+.tab:hover:not(.active) { color: var(--text); }
 
-.nav-links {
-  display: flex;
-  gap: 2rem;
-  list-style: none;
+/* ── PAGES ── */
+.page { display: none; padding: 7.5rem 1rem 2rem; max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+.page.active { display: block; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 1.5rem; margin-bottom: 1.25rem;
+}
+.card-title {
+  font-family: var(--font-head); font-size: 0.75rem; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold);
+  margin-bottom: 1rem;
 }
 
-.nav-links a {
-  color: var(--muted);
-  text-decoration: none;
-  font-size: 0.85rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  transition: color 0.2s;
+/* ── CHAMPION CARDS ── */
+.champions-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem;
 }
-
-.nav-links a:hover { color: var(--gold); }
-
-.nav-cta {
-  background: var(--gold);
-  color: var(--darker) !important;
-  font-weight: 700 !important;
-  padding: 0.45rem 1.2rem;
-  border-radius: 3px;
+.champ-card {
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 1rem; text-align: center;
+  transition: border-color 0.2s, transform 0.2s; cursor: pointer; position: relative;
 }
-
-/* ── HERO ── */
-#hero {
-  position: relative;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  overflow: hidden;
-  padding: 6rem 2rem 4rem;
-}
-
-.hero-grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(245,197,24,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(245,197,24,0.04) 1px, transparent 1px);
-  background-size: 60px 60px;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 40%, transparent 100%);
-}
-
-.hero-glow {
-  position: absolute;
-  width: 700px;
-  height: 700px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(245,197,24,0.12) 0%, transparent 70%);
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-}
-
-.hero-glow-red {
-  position: absolute;
-  width: 400px;
-  height: 400px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(230,57,70,0.1) 0%, transparent 70%);
-  top: 30%;
-  right: 10%;
-  pointer-events: none;
-}
-
-.hero-content {
-  position: relative;
-  z-index: 2;
-  max-width: 860px;
-}
-
-.hero-badge {
-  display: inline-block;
-  font-family: 'Orbitron', sans-serif;
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
-  color: var(--gold);
-  border: 1px solid var(--border);
-  padding: 0.35rem 1rem;
-  border-radius: 2px;
-  margin-bottom: 1.8rem;
-  text-transform: uppercase;
-  animation: fadeUp 0.6s ease both;
-}
-
-.hero-title {
-  font-family: 'Orbitron', sans-serif;
-  font-weight: 900;
-  font-size: clamp(2.8rem, 8vw, 6.5rem);
-  line-height: 0.95;
-  letter-spacing: -0.01em;
-  margin-bottom: 1.5rem;
-  animation: fadeUp 0.7s 0.1s ease both;
-}
-
-.hero-title .line1 { color: var(--text); }
-.hero-title .line2 {
-  color: var(--gold);
-  display: block;
-  -webkit-text-stroke: 1px var(--gold);
-}
-
-.hero-sub {
-  font-size: 1.05rem;
-  color: var(--muted);
-  max-width: 540px;
-  margin: 0 auto 2.5rem;
-  line-height: 1.7;
-  font-weight: 300;
-  animation: fadeUp 0.7s 0.2s ease both;
-}
-
-.hero-buttons {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
-  animation: fadeUp 0.7s 0.3s ease both;
-}
-
-.btn-primary {
-  background: var(--gold);
-  color: var(--darker);
-  font-family: 'Orbitron', sans-serif;
-  font-weight: 700;
-  font-size: 0.8rem;
-  letter-spacing: 0.1em;
-  padding: 0.85rem 2.2rem;
-  border-radius: 3px;
-  text-decoration: none;
-  text-transform: uppercase;
-  transition: transform 0.15s, box-shadow 0.15s;
-  box-shadow: 0 0 24px rgba(245,197,24,0.3);
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 40px rgba(245,197,24,0.5);
-}
-
-.btn-secondary {
-  background: transparent;
-  color: var(--text);
-  font-family: 'Orbitron', sans-serif;
-  font-weight: 700;
-  font-size: 0.8rem;
-  letter-spacing: 0.1em;
-  padding: 0.85rem 2.2rem;
-  border-radius: 3px;
-  text-decoration: none;
-  text-transform: uppercase;
-  border: 1px solid var(--border);
-  transition: border-color 0.2s, color 0.2s;
-}
-
-.btn-secondary:hover {
-  border-color: var(--gold);
-  color: var(--gold);
-}
-
-.hero-contract {
-  margin-top: 2.5rem;
-  animation: fadeUp 0.7s 0.4s ease both;
-}
-
-.contract-label {
-  font-size: 0.7rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 0.4rem;
-}
-
-.contract-box {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  background: rgba(245,197,24,0.05);
-  border: 1px solid var(--border);
-  padding: 0.6rem 1.2rem;
-  border-radius: 4px;
-  font-family: 'Orbitron', sans-serif;
-  font-size: 0.72rem;
-  color: var(--gold);
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.contract-box:hover { background: rgba(245,197,24,0.1); }
-.contract-box .copy-icon { font-size: 0.9rem; opacity: 0.6; }
-
-/* ── STATS ── */
-#stats {
-  position: relative;
-  z-index: 1;
-  padding: 3rem 2rem;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.stat-card {
-  background: var(--card);
-  padding: 2rem 1.5rem;
-  text-align: center;
-  position: relative;
-}
-
-.stat-card::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 10%; right: 10%;
-  height: 1px;
-  background: var(--border);
-}
-
-.stat-value {
-  font-family: 'Orbitron', sans-serif;
-  font-weight: 900;
+.champ-card:hover { border-color: var(--gold); transform: translateY(-3px); }
+.champ-card.selected { border-color: var(--gold); box-shadow: 0 0 20px rgba(245,197,24,0.2); }
+.champ-avatar {
+  width: 72px; height: 72px; border-radius: 50%;
+  margin: 0 auto 0.75rem;
+  display: flex; align-items: center; justify-content: center;
   font-size: 2rem;
-  color: var(--gold);
-  margin-bottom: 0.3rem;
 }
-
-.stat-label {
-  font-size: 0.75rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
+.rarity-0 { background: radial-gradient(circle, #3a3a5a, #1a1a2e); border: 2px solid #4a4a6a; }
+.rarity-1 { background: radial-gradient(circle, #1a3a2a, #0d1f17); border: 2px solid var(--green); }
+.rarity-2 { background: radial-gradient(circle, #1a2a4a, #0d1525); border: 2px solid var(--blue); }
+.rarity-3 { background: radial-gradient(circle, #3a2a1a, #1f1508); border: 2px solid #ff8c42; }
+.rarity-4 { background: radial-gradient(circle, #3a1a2a, #1f0d17); border: 2px solid #c77dff); }
+.champ-id { font-family: var(--font-head); font-size: 0.6rem; color: var(--muted); margin-bottom: 0.3rem; }
+.champ-stats { font-size: 0.85rem; color: var(--text); line-height: 1.6; }
+.champ-stats span { color: var(--gold); font-weight: 700; }
+.rarity-badge {
+  position: absolute; top: 0.5rem; right: 0.5rem;
+  font-size: 0.55rem; font-family: var(--font-head); letter-spacing: 0.1em;
+  padding: 0.15rem 0.4rem; border-radius: 2px;
 }
+.rb-0 { background: #2a2a4a; color: #8a8aaa; }
+.rb-1 { background: #0d2a1a; color: var(--green); }
+.rb-2 { background: #0d1f3a; color: var(--blue); }
+.rb-3 { background: #2a1a0a; color: #ff8c42; }
+.rb-4 { background: #2a0a2a; color: #c77dff; }
 
-/* ── SECTION SHARED ── */
-section {
-  position: relative;
-  z-index: 1;
-  padding: 5rem 2rem;
-  max-width: 1100px;
-  margin: 0 auto;
+/* ── BUTTONS ── */
+.btn {
+  font-family: var(--font-head); font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 0.65rem 1.5rem; border-radius: 4px; cursor: pointer;
+  border: none; transition: opacity 0.2s, transform 0.15s;
 }
+.btn:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+.btn-gold { background: var(--gold); color: var(--dark); }
+.btn-red { background: var(--red); color: #fff; }
+.btn-blue { background: var(--blue); color: var(--dark); }
+.btn-green { background: var(--green); color: var(--dark); }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn-sm { padding: 0.4rem 0.9rem; font-size: 0.62rem; }
 
-.section-tag {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 0.65rem;
-  letter-spacing: 0.25em;
-  color: var(--gold);
-  text-transform: uppercase;
-  margin-bottom: 0.75rem;
+/* ── INPUTS ── */
+.input-group { margin-bottom: 1rem; }
+.input-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.35rem; display: block; letter-spacing: 0.05em; }
+input[type=number], input[type=text] {
+  width: 100%; background: var(--card2); border: 1px solid var(--border);
+  border-radius: 4px; padding: 0.6rem 0.9rem;
+  color: var(--text); font-family: var(--font-body); font-size: 0.95rem;
+  outline: none; transition: border-color 0.2s;
 }
+input:focus { border-color: var(--gold); }
 
-.section-title {
-  font-family: 'Orbitron', sans-serif;
-  font-weight: 900;
-  font-size: clamp(1.8rem, 4vw, 2.8rem);
-  line-height: 1.1;
-  margin-bottom: 1rem;
+/* ── STATUS LOG ── */
+.log {
+  background: rgba(0,0,0,0.3); border: 1px solid var(--border2);
+  border-radius: 4px; padding: 0.75rem 1rem; margin-top: 1rem;
+  font-size: 0.82rem; color: var(--muted); min-height: 2.5rem;
+  max-height: 120px; overflow-y: auto; font-family: monospace;
+  line-height: 1.5;
 }
+.log .ok { color: var(--green); }
+.log .err { color: var(--red); }
+.log .info { color: var(--blue); }
+.log .warn { color: var(--gold); }
 
-.section-desc {
-  color: var(--muted);
-  font-size: 1rem;
-  max-width: 600px;
-  line-height: 1.7;
-  font-weight: 300;
+/* ── STATS ROW ── */
+.stats-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.stat-box {
+  flex: 1; min-width: 100px; background: var(--card);
+  border: 1px solid var(--border2); border-radius: 6px;
+  padding: 1rem; text-align: center;
 }
+.stat-val { font-family: var(--font-head); font-size: 1.4rem; color: var(--gold); font-weight: 900; }
+.stat-lbl { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 0.2rem; }
 
-/* ── FEATURES ── */
-#features .features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-top: 3rem;
+/* ── LISTING CARDS ── */
+.listing-card {
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 1rem 1.25rem;
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: 0.75rem; transition: border-color 0.2s;
 }
+.listing-card:hover { border-color: rgba(245,197,24,0.4); }
+.listing-nft-icon { font-size: 2rem; flex-shrink: 0; }
+.listing-info { flex: 1; }
+.listing-id { font-family: var(--font-head); font-size: 0.65rem; color: var(--muted); }
+.listing-price { font-family: var(--font-head); font-size: 1rem; color: var(--gold); font-weight: 700; }
+.listing-seller { font-size: 0.75rem; color: var(--muted); margin-top: 0.15rem; }
 
-.feature-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 2rem;
-  position: relative;
-  overflow: hidden;
-  transition: border-color 0.25s, transform 0.25s;
+/* ── CHALLENGE LIST ── */
+.challenge-row {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 0.85rem 1rem; border-bottom: 1px solid var(--border2);
 }
+.challenge-row:last-child { border-bottom: none; }
+.challenge-id { font-family: var(--font-head); font-size: 0.65rem; color: var(--muted); width: 50px; }
+.challenge-info { flex: 1; font-size: 0.85rem; }
+.challenge-info .addr { color: var(--blue); font-size: 0.75rem; }
 
-.feature-card:hover {
-  border-color: rgba(245,197,24,0.5);
-  transform: translateY(-4px);
+/* ── HERO BANNER ── */
+.hero-banner {
+  background: linear-gradient(135deg, rgba(245,197,24,0.08) 0%, rgba(230,57,70,0.05) 100%);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 2rem; margin-bottom: 1.5rem; text-align: center;
+  position: relative; overflow: hidden;
 }
-
-.feature-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  opacity: 0;
-  transition: opacity 0.25s;
+.hero-banner::before {
+  content: '⚔';
+  position: absolute; font-size: 8rem; opacity: 0.04;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  pointer-events: none;
 }
+.hero-banner h1 { font-family: var(--font-head); font-size: 1.6rem; font-weight: 900; color: var(--gold); margin-bottom: 0.5rem; }
+.hero-banner p { color: var(--muted); font-size: 0.9rem; }
 
-.feature-card:hover::before { opacity: 1; }
-
-.feature-icon {
-  font-size: 2.2rem;
-  margin-bottom: 1rem;
+/* ── SPINNER ── */
+.spinner {
+  display: inline-block; width: 14px; height: 14px;
+  border: 2px solid rgba(245,197,24,0.3); border-top-color: var(--gold);
+  border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px;
 }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.feature-title {
-  font-family: 'Orbitron', sans-serif;
-  font-weight: 700;
-  font-size: 1rem;
-  margin-bottom: 0.6rem;
-  color: var(--text);
-}
-
-.feature-desc {
-  color: var(--muted);
-  font-size: 0.9rem;
-  line-height: 1.65;
-}
-
-/* ── TOKENOMICS ── */
-#tokenomics .toko-wrap {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-  margin-top: 3rem;
-  align-items: center;
-}
-
-@media (max-width: 700px) {
-  #tokenomics .toko-wrap { grid-template-columns: 1fr; }
-}
-
-.toko-chart {
-  position: relative;
-  width: 260px;
-  height: 260px;
-  margin: 0 auto;
-}
-
-.toko-chart svg { transform: rotate(-90deg); }
-
-.toko-chart-label {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Orbitron', sans-serif;
-}
-
-.toko-chart-label .big { font-size: 1.8rem; font-weight: 900; color: var(--gold); }
-.toko-chart-label .small { font-size: 0.65rem; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; }
-
-.toko-list { list-style: none; }
-
-.toko-list li {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.9rem 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.toko-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.toko-name {
-  flex: 1;
-  font-size: 0.9rem;
-  color: var(--text);
-}
-
-.toko-pct {
-  font-family: 'Orbitron', sans-serif;
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: var(--gold);
-}
-
-/* ── ROADMAP ── */
-#roadmap .road-wrap {
-  margin-top: 3rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 0;
-  position: relative;
-}
-
-#roadmap .road-wrap::before {
-  content: '';
-  position: absolute;
-  top: 28px;
-  left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--border), var(--gold), var(--border), transparent);
-}
-
-.road-phase {
-  padding: 3.5rem 1.5rem 1.5rem;
-  position: relative;
-}
-
-.road-dot {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--gold);
-  border: 3px solid var(--darker);
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  box-shadow: 0 0 12px rgba(245,197,24,0.6);
-}
-
-.road-dot.dim { background: var(--muted); box-shadow: none; }
-
-.road-phase-num {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 0.65rem;
-  letter-spacing: 0.2em;
-  color: var(--gold);
-  text-transform: uppercase;
-  margin-bottom: 0.4rem;
-}
-
-.road-phase-title {
-  font-family: 'Orbitron', sans-serif;
-  font-weight: 700;
-  font-size: 0.95rem;
-  margin-bottom: 0.75rem;
-}
-
-.road-phase ul {
-  list-style: none;
-  padding: 0;
-}
-
-.road-phase ul li {
-  font-size: 0.85rem;
-  color: var(--muted);
-  padding: 0.25rem 0;
-  display: flex;
-  gap: 0.5rem;
-}
-
-.road-phase ul li::before {
-  content: '›';
-  color: var(--gold);
-}
-
-/* ── HOW TO BUY ── */
-#buy .steps {
-  margin-top: 3rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
-}
-
-.step {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 2rem 1.5rem;
-}
-
-.step-num {
-  font-family: 'Orbitron', sans-serif;
-  font-weight: 900;
-  font-size: 2.5rem;
-  color: rgba(245,197,24,0.15);
-  line-height: 1;
-  margin-bottom: 0.75rem;
-}
-
-.step-title {
-  font-family: 'Orbitron', sans-serif;
-  font-weight: 700;
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-}
-
-.step-desc {
-  font-size: 0.85rem;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-/* ── FOOTER ── */
-footer {
-  position: relative;
-  z-index: 1;
-  border-top: 1px solid var(--border);
-  padding: 2.5rem 2rem;
-  text-align: center;
-  color: var(--muted);
-  font-size: 0.8rem;
-}
-
-footer .footer-logo {
-  font-family: 'Orbitron', sans-serif;
-  font-weight: 900;
-  font-size: 1.1rem;
-  color: var(--gold);
-  margin-bottom: 0.75rem;
-}
-
-footer .footer-links {
-  display: flex;
-  gap: 1.5rem;
-  justify-content: center;
-  margin: 1rem 0;
-}
-
-footer .footer-links a {
-  color: var(--muted);
-  text-decoration: none;
-  font-size: 0.8rem;
-  letter-spacing: 0.05em;
-  transition: color 0.2s;
-}
-
-footer .footer-links a:hover { color: var(--gold); }
-
-/* ── ANIMATIONS ── */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── SEPARATOR ── */
-.divider {
-  border: none;
-  border-top: 1px solid var(--border);
-  margin: 0;
-}
-
-/* ── COPY TOAST ── */
+/* ── TOAST ── */
 #toast {
-  position: fixed;
-  bottom: 2rem;
-  left: 50%;
+  position: fixed; bottom: 1.5rem; left: 50%;
   transform: translateX(-50%) translateY(60px);
-  background: var(--gold);
-  color: var(--darker);
-  font-family: 'Orbitron', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 0.6rem 1.5rem;
-  border-radius: 3px;
-  z-index: 200;
-  letter-spacing: 0.1em;
-  transition: transform 0.3s ease;
+  background: var(--card); border: 1px solid var(--border);
+  color: var(--text); font-family: var(--font-head); font-size: 0.72rem;
+  padding: 0.65rem 1.5rem; border-radius: 4px; z-index: 999;
+  transition: transform 0.3s ease; white-space: nowrap;
 }
-
 #toast.show { transform: translateX(-50%) translateY(0); }
+#toast.ok { border-color: var(--green); color: var(--green); }
+#toast.err { border-color: var(--red); color: var(--red); }
+
+/* ── DIVIDER ── */
+.divider { border: none; border-top: 1px solid var(--border2); margin: 1.25rem 0; }
+
+/* ── EMPTY STATE ── */
+.empty { text-align: center; padding: 2.5rem; color: var(--muted); font-size: 0.9rem; }
+.empty .icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+
+/* ── BATTLE RESULT ── */
+.battle-result {
+  background: linear-gradient(135deg, rgba(87,204,153,0.08), rgba(245,197,24,0.05));
+  border: 1px solid var(--green); border-radius: 8px; padding: 1.5rem;
+  text-align: center; margin-top: 1rem; animation: popIn 0.4s ease;
+}
+.battle-result.loss {
+  background: linear-gradient(135deg, rgba(230,57,70,0.08), rgba(245,197,24,0.05));
+  border-color: var(--red);
+}
+.battle-result h2 { font-family: var(--font-head); font-size: 1.4rem; margin-bottom: 0.5rem; }
+.battle-result.win h2 { color: var(--green); }
+.battle-result.loss h2 { color: var(--red); }
+@keyframes popIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
+
+/* ── SELECT CHAMPION ── */
+.select-note { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.75rem; }
+
+/* ── TX HASH ── */
+.tx-link { font-size: 0.72rem; color: var(--blue); text-decoration: none; word-break: break-all; }
+.tx-link:hover { text-decoration: underline; }
+
+@media (max-width: 600px) {
+  .champions-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+  .stats-row { gap: 0.5rem; }
+  .stat-val { font-size: 1.1rem; }
+}
 ```
 
   </style>
 </head>
 <body>
 
-  <!-- NAV -->
+<!-- TOPBAR -->
 
-  <nav>
-    <a href="#hero" class="nav-logo">ARENA<span>COIN</span></a>
-    <ul class="nav-links">
-      <li><a href="#features">Features</a></li>
-      <li><a href="#tokenomics">Tokenomics</a></li>
-      <li><a href="#roadmap">Roadmap</a></li>
-      <li><a href="#buy" class="nav-cta">Buy Now</a></li>
-    </ul>
-  </nav>
-
-  <!-- HERO -->
-
-  <section id="hero" style="max-width:100%; padding-top:0; padding-bottom:0;">
-    <div class="hero-grid"></div>
-    <div class="hero-glow"></div>
-    <div class="hero-glow-red"></div>
-    <div class="hero-content">
-      <div class="hero-badge">⚔️ &nbsp; NFT Battle Arena &nbsp; · &nbsp; On-Chain Gaming</div>
-      <h1 class="hero-title">
-        <span class="line1">ENTER THE</span>
-        <span class="line2">ARENA</span>
-      </h1>
-      <p class="hero-sub">
-        ArenaCoin powers a decentralized gaming universe where NFT warriors clash, champions earn, and every battle is recorded on-chain forever.
-      </p>
-      <div class="hero-buttons">
-        <a href="#buy" class="btn-primary">⚔ Buy $ARENA</a>
-        <a href="https://github.com/BoomchainLabs" target="_blank" class="btn-secondary">GitHub →</a>
-      </div>
-      <div class="hero-contract">
-        <div class="contract-label">Contract Address</div>
-        <div class="contract-box" onclick="copyContract()">
-          <span id="contract-addr">0x3b855F88CB93aA642EaEB13F59987C552Fc614b5</span>
-          <span class="copy-icon">⎘</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- STATS -->
-
-  <div id="stats">
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-value">1B</div>
-        <div class="stat-label">Total Supply</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">0%</div>
-        <div class="stat-label">Buy Tax</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">0%</div>
-        <div class="stat-label">Sell Tax</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">🔥</div>
-        <div class="stat-label">LP Burned</div>
-      </div>
-    </div>
+<div id="topbar">
+  <span class="logo">ARENA<span>COIN</span></span>
+  <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+    <span id="arena-balance" style="display:none;"></span>
+    <span id="wallet-addr"></span>
+    <button id="wallet-btn" onclick="connectWallet()">Connect Wallet</button>
   </div>
-
-  <hr class="divider" />
-
-  <!-- FEATURES -->
-
-  <section id="features">
-    <div class="section-tag">// Core Mechanics</div>
-    <h2 class="section-title">Battle. Earn. Dominate.</h2>
-    <p class="section-desc">A full ecosystem built around competitive NFT combat, token utility, and community governance.</p>
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon">⚔️</div>
-        <div class="feature-title">NFT Battle Arena</div>
-        <div class="feature-desc">Deploy your NFT warriors into on-chain PvP battles. Every match outcome is provably fair and permanently recorded on the blockchain.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🏆</div>
-        <div class="feature-title">Champion Rewards</div>
-        <div class="feature-desc">Top ranked fighters earn $ARENA token rewards each season. The arena rewards skill, strategy, and dedication.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🛡️</div>
-        <div class="feature-title">Gear & Upgrades</div>
-        <div class="feature-desc">Spend $ARENA to forge weapons, craft armor, and level up your NFT. Rare gear gives competitive edges in high-stakes matches.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🗳️</div>
-        <div class="feature-title">DAO Governance</div>
-        <div class="feature-desc">Token holders vote on arena rule sets, seasonal prize pools, new NFT collections, and ecosystem upgrades.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">💰</div>
-        <div class="feature-title">Staking Vaults</div>
-        <div class="feature-desc">Stake $ARENA to earn passive yield while your warriors rest between battles. Higher stakes unlock exclusive tournament access.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🌐</div>
-        <div class="feature-title">Multi-Chain</div>
-        <div class="feature-desc">Built on Base with cross-chain bridges in development. Compete against players across the entire EVM ecosystem.</div>
-      </div>
-    </div>
-  </section>
-
-  <hr class="divider" />
-
-  <!-- TOKENOMICS -->
-
-  <section id="tokenomics">
-    <div class="section-tag">// Token Distribution</div>
-    <h2 class="section-title">Tokenomics</h2>
-    <p class="section-desc">Designed for long-term sustainability with community-first allocation.</p>
-
-```
-<div class="toko-wrap">
-  <div class="toko-chart">
-    <svg width="260" height="260" viewBox="0 0 260 260">
-      <!-- Total circle bg -->
-      <circle cx="130" cy="130" r="110" fill="none" stroke="#10101a" stroke-width="28"/>
-      <!-- Community 40% -->
-      <circle cx="130" cy="130" r="110" fill="none" stroke="#f5c518" stroke-width="28"
-        stroke-dasharray="276.46 415.48" stroke-dashoffset="0"/>
-      <!-- Liquidity 30% -->
-      <circle cx="130" cy="130" r="110" fill="none" stroke="#e63946" stroke-width="28"
-        stroke-dasharray="207.35 484.60" stroke-dashoffset="-276.46"/>
-      <!-- Team 15% -->
-      <circle cx="130" cy="130" r="110" fill="none" stroke="#4a90d9" stroke-width="28"
-        stroke-dasharray="103.67 588.27" stroke-dashoffset="-483.81"/>
-      <!-- Reserve 15% -->
-      <circle cx="130" cy="130" r="110" fill="none" stroke="#44d680" stroke-width="28"
-        stroke-dasharray="103.67 588.27" stroke-dashoffset="-587.48"/>
-    </svg>
-    <div class="toko-chart-label">
-      <span class="big">1B</span>
-      <span class="small">Total Supply</span>
-    </div>
-  </div>
-
-  <ul class="toko-list">
-    <li>
-      <span class="toko-dot" style="background:#f5c518;"></span>
-      <span class="toko-name">Community & Rewards</span>
-      <span class="toko-pct">40%</span>
-    </li>
-    <li>
-      <span class="toko-dot" style="background:#e63946;"></span>
-      <span class="toko-name">Liquidity Pool (Burned)</span>
-      <span class="toko-pct">30%</span>
-    </li>
-    <li>
-      <span class="toko-dot" style="background:#4a90d9;"></span>
-      <span class="toko-name">Team & Development</span>
-      <span class="toko-pct">15%</span>
-    </li>
-    <li>
-      <span class="toko-dot" style="background:#44d680;"></span>
-      <span class="toko-name">Treasury & Reserve</span>
-      <span class="toko-pct">15%</span>
-    </li>
-  </ul>
 </div>
+
+<!-- TABS -->
+
+<div id="tabs">
+  <div class="tab active" onclick="showPage('dashboard')">🏠 Home</div>
+  <div class="tab" onclick="showPage('champions')">🛡 Champions</div>
+  <div class="tab" onclick="showPage('battle')">⚔ Battle</div>
+  <div class="tab" onclick="showPage('pvp')">🗡 PvP</div>
+  <div class="tab" onclick="showPage('market')">🏪 Market</div>
+</div>
+
+<!-- DASHBOARD -->
+
+<div id="page-dashboard" class="page active">
+  <div class="hero-banner">
+    <h1>⚔ BASE BATTLE ARENA</h1>
+    <p>Fight. Earn. Dominate. All on-chain on Base.</p>
+  </div>
+  <div class="stats-row" id="dashboard-stats">
+    <div class="stat-box"><div class="stat-val" id="ds-balance">—</div><div class="stat-lbl">$ARENA Balance</div></div>
+    <div class="stat-box"><div class="stat-val" id="ds-champions">—</div><div class="stat-lbl">My Champions</div></div>
+    <div class="stat-box"><div class="stat-val" id="ds-listings">—</div><div class="stat-lbl">Market Listings</div></div>
+    <div class="stat-box"><div class="stat-val" id="ds-challenges">—</div><div class="stat-lbl">Open Challenges</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Quick Actions</div>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+      <button class="btn btn-gold" onclick="showPage('battle')">⚔ Enter Battle</button>
+      <button class="btn btn-red" onclick="showPage('pvp')">🗡 Challenge PvP</button>
+      <button class="btn btn-blue" onclick="showPage('market')">🏪 Marketplace</button>
+      <button class="btn btn-outline" onclick="showPage('champions')">🛡 My Champions</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Contract Addresses</div>
+    <div style="font-size:0.78rem;line-height:2;">
+      <div>🟡 ArenaToken: <a class="tx-link" href="https://basescan.org/address/0x3b855F88CB93aA642EaEB13F59987C552Fc614b5" target="_blank">0x3b855...614b5</a></div>
+      <div>🛡 ArenaChampion: <a class="tx-link" href="https://basescan.org/address/0x68f08b005b09B0F7D07E1c0B5CDe18E43CE2486A" target="_blank">0x68f08...486A</a></div>
+      <div>⚔ ArenaBattle: <a class="tx-link" href="https://basescan.org/address/0xF6fc2B6a306B626548ca9dF25B31a22D0f8971CF" target="_blank">0xF6fc2...71CF</a></div>
+      <div>🗡 ArenaPVP: <a class="tx-link" href="https://basescan.org/address/0xd0C4Af12E95f9590e7314D079C58597771E57533" target="_blank">0xd0C4...7533</a></div>
+      <div>🏪 ArenaMarketplace: <a class="tx-link" href="https://basescan.org/address/0x67817157Dd6E5945ac2fAf1a822e7f1dE26C698E" target="_blank">0x6781...698E</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- CHAMPIONS -->
+
+<div id="page-champions" class="page">
+  <div class="card">
+    <div class="card-title">My Champions</div>
+    <p class="select-note">Click a champion to select it for battles & PvP.</p>
+    <div id="champions-grid" class="champions-grid">
+      <div class="empty"><div class="icon">🛡</div>Connect wallet to load champions</div>
+    </div>
+    <div class="log" id="champ-log">Waiting for wallet...</div>
+  </div>
+</div>
+
+<!-- BATTLE (PvE) -->
+
+<div id="page-battle" class="page">
+  <div class="card">
+    <div class="card-title">⚔ PvE Battle — Enter the Arena</div>
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">
+      Pay the entry fee in $ARENA. Your champion fights automatically and earns rewards based on stats + rarity.
+    </p>
+
+```
+<div class="stats-row">
+  <div class="stat-box"><div class="stat-val" id="battle-fee">—</div><div class="stat-lbl">Entry Fee ($ARENA)</div></div>
+  <div class="stat-box"><div class="stat-val" id="battle-balance">—</div><div class="stat-lbl">Your Balance</div></div>
+</div>
+
+<div class="input-group">
+  <label class="input-label">Selected Champion</label>
+  <div id="battle-champ-display" style="font-family:var(--font-head);font-size:0.8rem;color:var(--muted);padding:0.5rem 0;">
+    No champion selected — go to Champions tab
+  </div>
+</div>
+
+<div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+  <button class="btn btn-gold" id="btn-approve-battle" onclick="approveBattle()">1. Approve $ARENA</button>
+  <button class="btn btn-red" id="btn-enter-battle" onclick="enterBattle()">2. Enter Battle</button>
+</div>
+<div class="log" id="battle-log">Connect wallet to begin.</div>
+<div id="battle-result-box"></div>
 ```
 
-  </section>
+  </div>
+</div>
 
-  <hr class="divider" />
+<!-- PVP -->
 
-  <!-- ROADMAP -->
-
-  <section id="roadmap">
-    <div class="section-tag">// The Path Forward</div>
-    <h2 class="section-title">Roadmap</h2>
-    <p class="section-desc">From launch to full on-chain battle metaverse.</p>
-    <div class="road-wrap">
-      <div class="road-phase">
-        <div class="road-dot"></div>
-        <div class="road-phase-num">Phase 01</div>
-        <div class="road-phase-title">Genesis</div>
-        <ul>
-          <li>Token Launch</li>
-          <li>Website & Socials</li>
-          <li>DEX Listing</li>
-          <li>Community Building</li>
-        </ul>
-      </div>
-      <div class="road-phase">
-        <div class="road-dot"></div>
-        <div class="road-phase-num">Phase 02</div>
-        <div class="road-phase-title">Arena Opens</div>
-        <ul>
-          <li>NFT Warrior Mint</li>
-          <li>Battle Arena Beta</li>
-          <li>Staking Vault Launch</li>
-          <li>CEX Listings</li>
-        </ul>
-      </div>
-      <div class="road-phase">
-        <div class="road-dot dim"></div>
-        <div class="road-phase-num">Phase 03</div>
-        <div class="road-phase-title">Season 1</div>
-        <ul>
-          <li>Ranked Tournaments</li>
-          <li>Gear Crafting System</li>
-          <li>DAO Governance</li>
-          <li>Season Prize Pool</li>
-        </ul>
-      </div>
-      <div class="road-phase">
-        <div class="road-dot dim"></div>
-        <div class="road-phase-num">Phase 04</div>
-        <div class="road-phase-title">Expansion</div>
-        <ul>
-          <li>Cross-Chain Bridge</li>
-          <li>Mobile App</li>
-          <li>Guild System</li>
-          <li>Metaverse Integration</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <hr class="divider" />
-
-  <!-- HOW TO BUY -->
-
-  <section id="buy">
-    <div class="section-tag">// Get $ARENA</div>
-    <h2 class="section-title">How to Buy</h2>
-    <p class="section-desc">Be in the arena in under 3 minutes.</p>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">01</div>
-        <div class="step-title">Get a Wallet</div>
-        <div class="step-desc">Download MetaMask, Coinbase Wallet, or Rabby. Add the Base network to connect to the arena.</div>
-      </div>
-      <div class="step">
-        <div class="step-num">02</div>
-        <div class="step-title">Fund with ETH</div>
-        <div class="step-desc">Buy ETH on any exchange and bridge it to Base via bridge.base.org or directly through your wallet.</div>
-      </div>
-      <div class="step">
-        <div class="step-num">03</div>
-        <div class="step-title">Swap on Uniswap</div>
-        <div class="step-desc">Go to app.uniswap.org, paste the $ARENA contract address, and swap your ETH for $ARENA tokens.</div>
-      </div>
-      <div class="step">
-        <div class="step-num">04</div>
-        <div class="step-title">Enter the Arena</div>
-        <div class="step-desc">Hold $ARENA, stake for rewards, mint your warrior NFT, and dominate the leaderboard.</div>
-      </div>
-    </div>
-    <div style="text-align:center; margin-top:3rem;">
-      <a href="https://app.uniswap.org/swap?outputCurrency=0x3b855F88CB93aA642EaEB13F59987C552Fc614b5&chain=base"
-        target="_blank" class="btn-primary" style="font-size:0.85rem;">
-        ⚔ Swap on Uniswap
-      </a>
-    </div>
-  </section>
-
-  <!-- FOOTER -->
-
-  <footer>
-    <div class="footer-logo">ARENA<span style="color:var(--red);">COIN</span></div>
-    <div class="footer-links">
-      <a href="https://github.com/BoomchainLabs" target="_blank">GitHub</a>
-      <a href="https://x.com/arenacoin" target="_blank">Twitter / X</a>
-      <a href="https://app.uniswap.org/swap?outputCurrency=0x3b855F88CB93aA642EaEB13F59987C552Fc614b5&chain=base" target="_blank">Buy $ARENA</a>
-      <a href="https://basescan.org/address/0x3b855F88CB93aA642EaEB13F59987C552Fc614b5" target="_blank">Basescan</a>
-    </div>
-    <p style="margin-top:0.5rem; font-size:0.72rem;">
-      Contract: 0x3b855F88CB93aA642EaEB13F59987C552Fc614b5 &nbsp;·&nbsp; Built on Base &nbsp;·&nbsp; © 2025 BoomchainLabs
+<div id="page-pvp" class="page">
+  <div class="card">
+    <div class="card-title">🗡 Create PvP Challenge</div>
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">
+      Wager $ARENA and challenge anyone to a battle. Winner takes the pot.
     </p>
-    <p style="margin-top:0.5rem; font-size:0.68rem; color:#444;">
-      $ARENA is a utility token. Not financial advice. DYOR.
-    </p>
-  </footer>
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-val" id="pvp-wager">—</div><div class="stat-lbl">Wager Amount ($ARENA)</div></div>
+      <div class="stat-box"><div class="stat-val" id="pvp-challenges">—</div><div class="stat-lbl">Open Challenges</div></div>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Your Champion ID</label>
+      <div id="pvp-champ-display" style="font-family:var(--font-head);font-size:0.8rem;color:var(--muted);padding:0.5rem 0;">
+        No champion selected
+      </div>
+    </div>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1rem;">
+      <button class="btn btn-gold" onclick="approvePVP()">1. Approve $ARENA</button>
+      <button class="btn btn-red" onclick="createChallenge()">2. Create Challenge</button>
+    </div>
+    <div class="log" id="pvp-create-log">Waiting...</div>
+  </div>
 
-  <!-- TOAST -->
+  <div class="card">
+    <div class="card-title">🏹 Open Challenges — Accept & Fight</div>
+    <div id="challenges-list"><div class="empty"><div class="icon">🗡</div>No open challenges found</div></div>
+    <button class="btn btn-outline btn-sm" style="margin-top:0.75rem;" onclick="loadChallenges()">🔄 Refresh</button>
+    <div class="log" id="pvp-accept-log">—</div>
+  </div>
+</div>
 
-  <div id="toast">✓ Address Copied!</div>
+<!-- MARKETPLACE -->
 
-  <script>
-    function copyContract() {
-      const addr = '0x3b855F88CB93aA642EaEB13F59987C552Fc614b5';
-      navigator.clipboard.writeText(addr).catch(() => {});
-      const t = document.getElementById('toast');
-      t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 2200);
+<div id="page-market" class="page">
+  <div class="card">
+    <div class="card-title">📦 List Your Champion NFT</div>
+    <div class="input-group">
+      <label class="input-label">Token ID to List</label>
+      <input type="number" id="list-token-id" placeholder="e.g. 1" min="0"/>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Price (in $ARENA, whole units)</label>
+      <input type="number" id="list-price" placeholder="e.g. 100" min="1"/>
+    </div>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+      <button class="btn btn-gold" onclick="approveNFT()">1. Approve NFT</button>
+      <button class="btn btn-blue" onclick="listNFT()">2. List NFT</button>
+    </div>
+    <div class="log" id="list-log">—</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🏪 Active Listings</div>
+    <div id="listings-container"><div class="empty"><div class="icon">🏪</div>Loading listings...</div></div>
+    <button class="btn btn-outline btn-sm" style="margin-top:0.75rem;" onclick="loadListings()">🔄 Refresh</button>
+    <div class="log" id="buy-log">—</div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════
+const BASE_CHAIN_ID = '0x2105'; // 8453
+const RPC = 'https://mainnet.base.org';
+
+const ADDR = {
+  token:       '0x3b855F88CB93aA642EaEB13F59987C552Fc614b5',
+  champion:    '0x68f08b005b09B0F7D07E1c0B5CDe18E43CE2486A',
+  battle:      '0xF6fc2B6a306B626548ca9dF25B31a22D0f8971CF',
+  pvp:         '0xd0C4Af12E95f9590e7314D079C58597771E57533',
+  marketplace: '0x67817157Dd6E5945ac2fAf1a822e7f1dE26C698E',
+};
+
+// ── Minimal ABI selectors (keccak256 first 4 bytes) ──
+const SEL = {
+  // ERC20
+  balanceOf:        '0x70a08231',
+  approve:          '0x095ea7b3',
+  allowance:        '0xdd62ed3e',
+  // ArenaChampion
+  nextTokenId:      '0xd09ef241',
+  tokenOfOwnerByIndex: '0x2f745c59',
+  getChampion:      '0xf854a27f',
+  approveNFT:       '0x095ea7b3',
+  // ArenaBattle
+  entryFee:         '0x8b7afe2e',
+  enterBattle:      '0xd268cf27',
+  // ArenaPVP
+  wagerAmount:      '0x4e619e6b',
+  challengeCounter: '0x5a3b7e42',
+  createChallenge:  '0x46fef404',
+  acceptChallenge:  '0x14b1b7e4',
+  challenges:       '0x9e7befd4',
+  // ArenaMarketplace
+  listingCounter:   '0x19eed9a3',
+  listings:         '0x41c0e1b5',
+  listNFT:          '0xa75b3b5a',
+  buyNFT:           '0xd96a094a',
+};
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+let wallet = null;
+let selectedChampionId = null;
+let myChampions = [];
+
+// ══════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════
+function pad32(val) {
+  return val.toString(16).padStart(64, '0');
+}
+function encodeAddress(addr) {
+  return pad32(addr.toLowerCase().replace('0x',''));
+}
+function encodeUint256(n) {
+  return pad32(BigInt(n).toString(16));
+}
+function decodeUint256(hex) {
+  return BigInt('0x' + hex.slice(2, 66));
+}
+function decodeAddress(hex) {
+  return '0x' + hex.slice(26, 66);
+}
+function shortAddr(a) {
+  return a ? a.slice(0,6) + '...' + a.slice(-4) : '';
+}
+function toARENA(raw) {
+  return (Number(raw) / 1e18).toLocaleString(undefined, {maximumFractionDigits: 2});
+}
+function fromARENA(n) {
+  return (BigInt(Math.round(Number(n))) * BigInt('1000000000000000000')).toString();
+}
+
+async function rpcCall(to, data) {
+  const res = await fetch(RPC, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ jsonrpc:'2.0', id:1, method:'eth_call',
+      params: [{ to, data }, 'latest'] })
+  });
+  const j = await res.json();
+  if (j.error) throw new Error(j.error.message);
+  return j.result;
+}
+
+async function sendTx(to, data, logEl) {
+  if (!wallet) { log(logEl, 'Connect wallet first', 'err'); return null; }
+  log(logEl, '<span class="spinner"></span>Sending transaction...', 'info');
+  try {
+    const txHash = await window.ethereum.request({
+      method: 'eth_sendTransaction',
+      params: [{ from: wallet, to, data, gas: '0x493E0' }]
+    });
+    log(logEl, `✓ TX sent: <a class="tx-link" href="https://basescan.org/tx/${txHash}" target="_blank">${txHash.slice(0,20)}...</a>`, 'ok');
+    toast('Transaction sent!', 'ok');
+    return txHash;
+  } catch(e) {
+    log(logEl, '✗ ' + (e.message || e), 'err');
+    toast('Transaction failed', 'err');
+    return null;
+  }
+}
+
+function log(elId, msg, type='') {
+  const el = typeof elId === 'string' ? document.getElementById(elId) : elId;
+  if (!el) return;
+  el.innerHTML = `<span class="${type}">${msg}</span>`;
+}
+
+function toast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = type;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ══════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  const tabs = ['dashboard','champions','battle','pvp','market'];
+  document.querySelectorAll('.tab')[tabs.indexOf(name)]?.classList.add('active');
+  if (name === 'champions' && wallet) loadChampions();
+  if (name === 'battle' && wallet) loadBattleInfo();
+  if (name === 'pvp' && wallet) { loadPVPInfo(); loadChallenges(); }
+  if (name === 'market') loadListings();
+  if (name === 'dashboard' && wallet) loadDashboard();
+}
+
+// ══════════════════════════════════════════
+//  WALLET
+// ══════════════════════════════════════════
+async function connectWallet() {
+  if (!window.ethereum) { toast('No wallet found. Install MetaMask or Coinbase Wallet.', 'err'); return; }
+  try {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    wallet = accounts[0];
+
+    // Switch to Base
+    try {
+      await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: BASE_CHAIN_ID }] });
+    } catch(e) {
+      if (e.code === 4902) {
+        await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [{
+          chainId: BASE_CHAIN_ID, chainName: 'Base',
+          nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+          rpcUrls: ['https://mainnet.base.org'],
+          blockExplorerUrls: ['https://basescan.org']
+        }]});
+      }
     }
 
-    // Scroll reveal
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.style.opacity = '1';
-          e.target.style.transform = 'translateY(0)';
-        }
-      });
-    }, { threshold: 0.1 });
+    const btn = document.getElementById('wallet-btn');
+    btn.textContent = shortAddr(wallet);
+    btn.classList.add('connected');
+    document.getElementById('wallet-addr').textContent = '';
+    loadArenaBalance();
+    loadDashboard();
+    toast('Wallet connected!', 'ok');
+  } catch(e) {
+    toast('Connection failed: ' + e.message, 'err');
+  }
+}
 
-    document.querySelectorAll('.feature-card, .step, .road-phase, .stat-card').forEach(el => {
-      el.style.opacity = '0';
-      el.style.transform = 'translateY(20px)';
-      el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-      observer.observe(el);
+async function loadArenaBalance() {
+  if (!wallet) return;
+  try {
+    const data = SEL.balanceOf + encodeAddress(wallet);
+    const res = await rpcCall(ADDR.token, data);
+    const bal = decodeUint256(res);
+    const fmt = toARENA(bal);
+    const el = document.getElementById('arena-balance');
+    el.textContent = fmt + ' $ARENA';
+    el.style.display = 'inline';
+    document.getElementById('ds-balance').textContent = fmt;
+    document.getElementById('battle-balance').textContent = fmt;
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════
+async function loadDashboard() {
+  if (!wallet) return;
+  loadArenaBalance();
+  // champion count
+  try {
+    const res = await rpcCall(ADDR.champion, SEL.nextTokenId);
+    // rough: count by iterating tokenOfOwnerByIndex
+    await loadChampionsSilent();
+    document.getElementById('ds-champions').textContent = myChampions.length;
+  } catch(e) {}
+  // listing count
+  try {
+    const res = await rpcCall(ADDR.marketplace, SEL.listingCounter);
+    document.getElementById('ds-listings').textContent = Number(decodeUint256(res));
+  } catch(e) {}
+  // challenge count
+  try {
+    const res = await rpcCall(ADDR.pvp, SEL.challengeCounter);
+    document.getElementById('ds-challenges').textContent = Number(decodeUint256(res));
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════════
+//  CHAMPIONS
+// ══════════════════════════════════════════
+const RARITY_NAMES = ['Common','Uncommon','Rare','Epic','Legendary'];
+const RARITY_EMOJIS = ['⚪','🟢','🔵','🟠','🟣'];
+
+async function loadChampionsSilent() {
+  if (!wallet) return;
+  myChampions = [];
+  try {
+    const nextId = Number(decodeUint256(await rpcCall(ADDR.champion, SEL.nextTokenId)));
+    for (let i = 0; i < nextId; i++) {
+      try {
+        const owner = decodeAddress(await rpcCall(ADDR.champion, '0x6352211e' + encodeUint256(i)));
+        if (owner.toLowerCase() === wallet.toLowerCase()) {
+          const champData = await rpcCall(ADDR.champion, SEL.getChampion + encodeUint256(i));
+          const atk = Number(decodeUint256({ slice: () => '', ...{} } ));
+          // decode tuple: [attack(32), defense(32), rarity(32)]
+          const hex = champData.slice(2);
+          const attack = Number(BigInt('0x' + hex.slice(0, 64)));
+          const defense = Number(BigInt('0x' + hex.slice(64, 128)));
+          const rarity = Number(BigInt('0x' + hex.slice(128, 192)));
+          myChampions.push({ id: i, attack, defense, rarity });
+        }
+      } catch(e) {}
+    }
+  } catch(e) {}
+}
+
+async function loadChampions() {
+  const grid = document.getElementById('champions-grid');
+  const logEl = 'champ-log';
+  if (!wallet) { log(logEl, 'Connect wallet first', 'err'); return; }
+  grid.innerHTML = '<div class="empty"><span class="spinner"></span> Loading champions...</div>';
+  log(logEl, '<span class="spinner"></span>Scanning chain for your champions...', 'info');
+
+  await loadChampionsSilent();
+
+  if (myChampions.length === 0) {
+    grid.innerHTML = '<div class="empty"><div class="icon">🛡</div>No champions found. Win battles to earn NFT champions!</div>';
+    log(logEl, 'No champions found in your wallet.', 'warn');
+    return;
+  }
+
+  grid.innerHTML = '';
+  myChampions.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'champ-card' + (selectedChampionId === c.id ? ' selected' : '');
+    div.onclick = () => selectChampion(c.id);
+    div.innerHTML = `
+      <span class="rarity-badge rb-${c.rarity}">${RARITY_NAMES[c.rarity] || 'Unknown'}</span>
+      <div class="champ-avatar rarity-${c.rarity}">${RARITY_EMOJIS[c.rarity] || '⚔'}</div>
+      <div class="champ-id">CHAMPION #${c.id}</div>
+      <div class="champ-stats">
+        ⚔ ATK: <span>${c.attack}</span><br>
+        🛡 DEF: <span>${c.defense}</span>
+      </div>
+    `;
+    grid.appendChild(div);
+  });
+  log(logEl, `✓ Loaded ${myChampions.length} champion(s).`, 'ok');
+}
+
+function selectChampion(id) {
+  selectedChampionId = id;
+  document.querySelectorAll('.champ-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.champ-card').forEach(c => {
+    if (c.querySelector('.champ-id')?.textContent.includes(`#${id}`)) c.classList.add('selected');
+  });
+  const champ = myChampions.find(c => c.id === id);
+  const desc = champ ? `#${id} — ATK:${champ.attack} DEF:${champ.defense} [${RARITY_NAMES[champ.rarity]}]` : `#${id}`;
+  document.getElementById('battle-champ-display').textContent = desc;
+  document.getElementById('pvp-champ-display').textContent = desc;
+  toast(`Selected Champion #${id}`, 'ok');
+}
+
+// ══════════════════════════════════════════
+//  BATTLE (PvE)
+// ══════════════════════════════════════════
+async function loadBattleInfo() {
+  try {
+    const fee = decodeUint256(await rpcCall(ADDR.battle, SEL.entryFee));
+    document.getElementById('battle-fee').textContent = toARENA(fee);
+  } catch(e) {}
+  loadArenaBalance();
+}
+
+async function approveBattle() {
+  const logEl = 'battle-log';
+  if (!wallet) { log(logEl, 'Connect wallet first', 'err'); return; }
+  try {
+    const fee = decodeUint256(await rpcCall(ADDR.battle, SEL.entryFee));
+    const data = SEL.approve + encodeAddress(ADDR.battle) + encodeUint256(fee);
+    await sendTx(ADDR.token, data, logEl);
+  } catch(e) { log(logEl, '✗ ' + e.message, 'err'); }
+}
+
+async function enterBattle() {
+  const logEl = 'battle-log';
+  const resultBox = document.getElementById('battle-result-box');
+  if (!wallet) { log(logEl, 'Connect wallet first', 'err'); return; }
+  resultBox.innerHTML = '';
+  const tx = await sendTx(ADDR.battle, SEL.enterBattle, logEl);
+  if (tx) {
+    // Poll for receipt to get BattleResult event
+    log(logEl, '<span class="spinner"></span>Waiting for battle result...', 'info');
+    await pollReceipt(tx, logEl, (receipt) => {
+      parseBattleResult(receipt, resultBox);
     });
-  </script>
+    loadArenaBalance();
+  }
+}
+
+async function pollReceipt(txHash, logEl, cb) {
+  for (let i = 0; i < 30; i++) {
+    await new Promise(r => setTimeout(r, 2000));
+    const res = await fetch(RPC, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jsonrpc:'2.0', id:1, method:'eth_getTransactionReceipt', params:[txHash] })
+    });
+    const j = await res.json();
+    if (j.result) {
+      if (cb) cb(j.result);
+      return j.result;
+    }
+  }
+  log(logEl, '⚠ Timed out waiting for receipt. Check Basescan.', 'warn');
+}
+
+function parseBattleResult(receipt, box) {
+  // BattleResult event topic
+  const TOPIC = '0x' + keccak256Hex('BattleResult(address,uint256,uint256,uint256,uint256,uint8)');
+  const log = receipt.logs?.find(l => l.address?.toLowerCase() === ADDR.battle.toLowerCase());
+  if (log) {
+    // data: reward(32), nftId(32), attack(32), defense(32), rarity(32) (but simplified)
+    const data = log.data.slice(2);
+    const reward = Number(BigInt('0x' + data.slice(0,64)));
+    const nftId  = Number(BigInt('0x' + data.slice(64,128)));
+    const attack = Number(BigInt('0x' + data.slice(128,192)));
+    const defense= Number(BigInt('0x' + data.slice(192,256)));
+    const rarity = Number(BigInt('0x' + data.slice(256,320)));
+    const won = reward > 0;
+    box.innerHTML = `
+      <div class="battle-result ${won?'win':'loss'}">
+        <h2>${won ? '🏆 VICTORY!' : '💀 DEFEATED'}</h2>
+        <p style="color:var(--muted);margin-bottom:0.5rem;">${won ? 'You earned rewards and an NFT champion!' : 'Better luck next time.'}</p>
+        ${won ? `<p>💰 Reward: <strong style="color:var(--green)">${toARENA(reward)} $ARENA</strong></p>` : ''}
+        ${nftId > 0 ? `<p>🛡 Champion NFT #${nftId} minted! ATK:${attack} DEF:${defense} [${RARITY_NAMES[rarity]||'?'}]</p>` : ''}
+      </div>`;
+    myChampions = [];
+  } else {
+    box.innerHTML = `<div class="battle-result win"><h2>⚔ Battle Complete!</h2><p style="color:var(--muted)">Check Basescan for full results.</p></div>`;
+  }
+}
+
+// simple keccak256 stub — we use the known topic
+function keccak256Hex(s) { return '0'.repeat(64); } // placeholder, not used for sending
+
+// ══════════════════════════════════════════
+//  PVP
+// ══════════════════════════════════════════
+async function loadPVPInfo() {
+  try {
+    const wager = decodeUint256(await rpcCall(ADDR.pvp, SEL.wagerAmount));
+    document.getElementById('pvp-wager').textContent = toARENA(wager);
+  } catch(e) {}
+  try {
+    const count = Number(decodeUint256(await rpcCall(ADDR.pvp, SEL.challengeCounter)));
+    document.getElementById('pvp-challenges').textContent = count;
+  } catch(e) {}
+}
+
+async function approvePVP() {
+  const logEl = 'pvp-create-log';
+  if (!wallet) { log(logEl, 'Connect wallet first', 'err'); return; }
+  try {
+    const wager = decodeUint256(await rpcCall(ADDR.pvp, SEL.wagerAmount));
+    const data = SEL.approve + encodeAddress(ADDR.pvp) + encodeUint256(wager);
+    await sendTx(ADDR.token, data, logEl);
+  } catch(e) { log(logEl, '✗ ' + e.message, 'err'); }
+}
+
+async function createChallenge() {
+  const logEl = 'pvp-create-log';
+  if (!wallet) { log(logEl, 'Connect wallet first', 'err'); return; }
+  if (selectedChampionId === null) { log(logEl, 'Select a champion first (Champions tab)', 'err'); return; }
+  const data = SEL.createChallenge + encodeUint256(selectedChampionId);
+  await sendTx(ADDR.pvp, data, logEl);
+  setTimeout(loadChallenges, 4000);
+}
+
+async function loadChallenges() {
+  const container = document.getElementById('challenges-list');
+  const logEl = 'pvp-accept-log';
+  try {
+    const countRaw = await rpcCall(ADDR.pvp, SEL.challengeCounter);
+    const count = Number(decodeUint256(countRaw));
+    document.getElementById('pvp-challenges').textContent = count;
+    if (count === 0) {
+      container.innerHTML = '<div class="empty"><div class="icon">🗡</div>No challenges yet. Create one!</div>';
+      return;
+    }
+    container.innerHTML = '';
+    let found = 0;
+    for (let i = 0; i < count; i++) {
+      try {
+        const data = SEL.challenges + encodeUint256(i);
+        const res = await rpcCall(ADDR.pvp, data);
+        const hex = res.slice(2);
+        const challenger = '0x' + hex.slice(24, 64);
+        const champId = Number(BigInt('0x' + hex.slice(64, 128)));
+        const active = Number(BigInt('0x' + hex.slice(128, 192))) === 1;
+        if (!active) continue;
+        found++;
+        const row = document.createElement('div');
+        row.className = 'challenge-row';
+        const isOwn = challenger.toLowerCase() === wallet?.toLowerCase();
+        row.innerHTML = `
+          <div class="challenge-id">#${i}</div>
+          <div class="challenge-info">
+            <span class="addr">${shortAddr(challenger)}</span> — Champion #${champId}
+            ${isOwn ? ' <span style="color:var(--gold);font-size:0.7rem;">(yours)</span>' : ''}
+          </div>
+          ${!isOwn ? `<button class="btn btn-red btn-sm" onclick="acceptChallenge(${i})">Accept</button>` : ''}
+        `;
+        container.appendChild(row);
+      } catch(e) {}
+    }
+    if (found === 0) container.innerHTML = '<div class="empty"><div class="icon">🗡</div>No active challenges</div>';
+  } catch(e) {
+    log(logEl, '✗ ' + e.message, 'err');
+  }
+}
+
+async function acceptChallenge(id) {
+  const logEl = 'pvp-accept-log';
+  if (!wallet) { log(logEl, 'Connect wallet first', 'err'); return; }
+  if (selectedChampionId === null) { log(logEl, 'Select a champion first (Champions tab)', 'err'); return; }
+  // approve wager first
+  try {
+    const wager = decodeUint256(await rpcCall(ADDR.pvp, SEL.wagerAmount));
+    const approveData = SEL.approve + encodeAddress(ADDR.pvp) + encodeUint256(wager);
+    log(logEl, '<span class="spinner"></span>Approving wager...', 'info');
+    const approveHash = await window.ethereum.request({
+      method: 'eth_sendTransaction',
+      params: [{ from: wallet, to: ADDR.token, data: approveData, gas: '0x30D40' }]
+    });
+    await pollReceipt(approveHash, logEl, null);
+  } catch(e) { log(logEl, '✗ Approve failed: ' + e.message, 'err'); return; }
+
+  const data = SEL.acceptChallenge + encodeUint256(id) + encodeUint256(selectedChampionId);
+  const tx = await sendTx(ADDR.pvp, data, logEl);
+  if (tx) {
+    await pollReceipt(tx, logEl, () => {
+      toast('PvP battle complete! Check Basescan for result.', 'ok');
+      loadChallenges();
+      loadArenaBalance();
+    });
+  }
+}
+
+// ══════════════════════════════════════════
+//  MARKETPLACE
+// ══════════════════════════════════════════
+async function approveNFT() {
+  const logEl = 'list-log';
+  if (!wallet) { log(logEl, 'Connect wallet first', 'err'); return; }
+  const tokenId = document.getElementById('list-token-id').value;
+  if (!tokenId) { log(logEl, 'Enter a Token ID', 'err'); return; }
+  // approve(marketplace, tokenId)
+  const data = '0x095ea7b3' + encodeAddress(ADDR.marketplace) + encodeUint256(tokenId);
+  await sendTx(ADDR.champion, data, logEl);
+}
+
+async function listNFT() {
+  const logEl = 'list-log';
+  if (!wallet) { log(logEl, 'Connect wallet first', 'err'); return; }
+  const tokenId = document.getElementById('list-token-id').value;
+  const price = document.getElementById('list-price').value;
+  if (!tokenId || !price) { log(logEl, 'Enter Token ID and Price', 'err'); return; }
+  const priceWei = fromARENA(price);
+  // listNFT(uint256 tokenId, uint256 price) — selector
+  const sig = '0x' + funcSelector('listNFT(uint256,uint256)');
+  const data = sig + encodeUint256(tokenId) + encodeUint256(priceWei);
+  const tx = await sendTx(ADDR.marketplace, data, logEl);
+  if (tx) setTimeout(loadListings, 5000);
+}
+
+async function loadListings() {
+  const container = document.getElementById('listings-container');
+  try {
+    const countRaw = await rpcCall(ADDR.marketplace, SEL.listingCounter);
+    const count = Number(decodeUint256(countRaw));
+    if (count === 0) {
+      container.innerHTML = '<div class="empty"><div class="icon">🏪</div>No listings yet</div>';
+      return;
+    }
+    container.innerHTML = '';
+    let found = 0;
+    for (let i = 0; i < count; i++) {
+      try {
+        const sig = '0x' + funcSelector('listings(uint256)');
+        const data = sig + encodeUint256(i);
+        const res = await rpcCall(ADDR.marketplace, data);
+        const hex = res.slice(2);
+        const seller  = '0x' + hex.slice(24, 64);
+        const tokenId = Number(BigInt('0x' + hex.slice(64, 128)));
+        const price   = BigInt('0x' + hex.slice(128, 192));
+        const active  = Number(BigInt('0x' + hex.slice(192, 256))) === 1;
+        if (!active) continue;
+        found++;
+        const div = document.createElement('div');
+        div.className = 'listing-card';
+        const isOwn = seller.toLowerCase() === wallet?.toLowerCase();
+        div.innerHTML = `
+          <div class="listing-nft-icon">🛡</div>
+          <div class="listing-info">
+            <div class="listing-id">Listing #${i} — Champion #${tokenId}</div>
+            <div class="listing-price">${toARENA(price)} $ARENA</div>
+            <div class="listing-seller">Seller: ${shortAddr(seller)} ${isOwn ? '(you)' : ''}</div>
+          </div>
+          ${!isOwn ? `
+            <div style="display:flex;flex-direction:column;gap:0.4rem;">
+              <button class="btn btn-gold btn-sm" onclick="approveForBuy('${price}')">Approve</button>
+              <button class="btn btn-green btn-sm" onclick="buyNFT(${i})">Buy</button>
+            </div>` : ''}
+        `;
+        container.appendChild(div);
+      } catch(e) {}
+    }
+    if (found === 0) container.innerHTML = '<div class="empty"><div class="icon">🏪</div>No active listings</div>';
+  } catch(e) {
+    document.getElementById('listings-container').innerHTML = '<div class="empty">Error loading listings</div>';
+  }
+}
+
+async function approveForBuy(price) {
+  const logEl = 'buy-log';
+  if (!wallet) { log(logEl, 'Connect wallet first', 'err'); return; }
+  const data = SEL.approve + encodeAddress(ADDR.marketplace) + encodeUint256(price);
+  await sendTx(ADDR.token, data, logEl);
+}
+
+async function buyNFT(listingId) {
+  const logEl = 'buy-log';
+  if (!wallet) { log(logEl, 'Connect wallet first', 'err'); return; }
+  const sig = '0x' + funcSelector('buyNFT(uint256)');
+  const data = sig + encodeUint256(listingId);
+  const tx = await sendTx(ADDR.marketplace, data, logEl);
+  if (tx) {
+    await pollReceipt(tx, logEl, () => {
+      toast('NFT purchased!', 'ok');
+      loadListings();
+      loadArenaBalance();
+      myChampions = [];
+    });
+  }
+}
+
+// ══════════════════════════════════════════
+//  FUNCTION SELECTORS (pre-computed)
+// ══════════════════════════════════════════
+const SELECTORS = {
+  'listNFT(uint256,uint256)':  'a75b3b5a',
+  'buyNFT(uint256)':           'd96a094a',
+  'listings(uint256)':         '41c0e1b5',
+};
+
+function funcSelector(sig) {
+  return SELECTORS[sig] || '00000000';
+}
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+window.addEventListener('load', () => {
+  loadListings();
+  // Auto-reconnect if already connected
+  if (window.ethereum) {
+    window.ethereum.request({ method: 'eth_accounts' }).then(accounts => {
+      if (accounts.length > 0) {
+        wallet = accounts[0];
+        const btn = document.getElementById('wallet-btn');
+        btn.textContent = shortAddr(wallet);
+        btn.classList.add('connected');
+        loadArenaBalance();
+        loadDashboard();
+      }
+    });
+    window.ethereum.on('accountsChanged', accs => {
+      wallet = accs[0] || null;
+      if (wallet) { loadArenaBalance(); loadDashboard(); }
+    });
+  }
+});
+</script>
 
 </body>
 </html>
